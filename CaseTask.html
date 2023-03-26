@@ -1,0 +1,376 @@
+<html lang="ru"><head>
+	<meta charset="utf-8">
+	<title>Кейс-Задание</title>
+    <style>
+		table {
+            border: none;
+            border-spacing: 0;
+            border-collapse: collapse;
+            
+        } 
+        
+        td {
+            padding: 5px;
+			border: 1px solid black;
+            text-align: center;
+            background-color: yellow;
+        }
+
+        th {
+			padding: 10px;
+			border: none;
+            text-align: left;
+		}
+        tfoot {
+            border: none;
+        }
+        button{
+            position: relative;
+            left:500px;
+        }
+
+	</style>
+</head>
+<body>
+     <div>
+        <table id="argTable">
+            <thead>
+                <tr>
+                    <td>A</td>
+                    <td>B</td>
+                    <td>C</td>
+                    <td>D</td>
+                    <td>E</td>
+                </tr>
+                
+            </thead>
+            <tbody contenteditable="true">
+                <tr>
+                    <td>0 </td>
+                    <td> </td>
+                    <td> </td>
+                    <td> </td>
+                    <td> </td>
+                </tr>
+                <tr>
+                    <td> </td>
+                    <td>0 </td>
+                    <td> </td>
+                    <td> </td>
+                    <td> </td>
+                </tr>
+                <tr>
+                    <td> </td>
+                    <td> </td>
+                    <td>0 </td>
+                    <td> </td>
+                    <td> </td>
+                </tr>
+                <tr>
+                    <td> </td>
+                    <td> </td>
+                    <td> </td>
+                    <td> 0</td>
+                    <td> </td>
+                </tr>
+                <tr>
+                    <td> </td>
+                    <td> </td>
+                    <td> </td>
+                    <td> </td>
+                    <td> 0</td>
+                </tr>
+                <tr>
+                    <td>0 </td>
+                    <td> </td>
+                    <td> </td>
+                    <td> </td>
+                    <td> </td>
+                </tr>
+                <tr>
+                    <td> </td>
+                    <td> 0</td>
+                    <td> </td>
+                    <td> </td>
+                    <td> </td>
+                </tr>
+                <tr>
+                    <td> </td>
+                    <td> </td>
+                    <td> 0</td>
+                    <td> </td>
+                    <td> </td>
+                </tr>
+                <tr>
+                    <td> </td>
+                    <td> </td>
+                    <td> </td>
+                    <td> 0</td>
+                    <td> </td>
+                </tr>
+                <tr>
+                    <td> </td>
+                    <td> </td>
+                    <td> </td>
+                    <td> </td>
+                    <td> 0</td>
+                </tr>
+                
+                
+            </tbody>
+            <tfoot>
+                <tr >
+                    <th>A: <select id="select0">
+                        <option>---</option>
+                        <option>Критерий</option>
+                        <option>Сумма</option>
+                        <option>Макс.</option>
+                        <option>Мин.</option>
+                        <option>Конкат</option>
+                    </select>
+                    </th>
+                    <th>B: <select id="select1">
+                        <option>---</option>
+                        <option>Критерий</option>
+                        <option>Сумма</option>
+                        <option>Макс.</option>
+                        <option>Мин.</option>
+                        <option>Конкат</option>
+                    </select>
+                    </th>
+                    <th>C: <select id="select2">
+                        <option>---</option>
+                        <option>Критерий</option>
+                        <option>Сумма</option>
+                        <option>Макс.</option>
+                        <option>Мин.</option>
+                        <option>Конкат</option>
+                    </select>
+                    </th>
+                    <th>D: <select id="select3">
+                        <option>---</option>
+                        <option>Критерий</option>
+                        <option>Сумма</option>
+                        <option>Макс.</option>
+                        <option>Мин.</option>
+                        <option>Конкат</option>
+                    </select>
+                    </th>
+                    <th>E: <select id="select4">
+                        <option>---</option>
+                        <option>Критерий</option>
+                        <option>Сумма</option>
+                        <option>Макс.</option>
+                        <option>Мин.</option>
+                        <option>Конкат</option>
+                    </select>
+                    </th>
+                </tr>
+            </tfoot>
+        </table>
+
+        <button onclick="handler()" id="groupButton">Сгруппировать</button>
+	 </div>
+     <div id="resultField">
+        <p id="resultLabel">
+
+        </p>
+
+     </div>
+<script>
+    var argTable = document.getElementById('argTable'); // Таблица ввода
+    var copiedArgs = new Array(); //Массив, куда будет копированы данные из таблицы ввода
+    var optionArr = []; // Массив, куда будут копированы выбранные параметры группировки
+    var tableCreated = false; //Флаг, определяющий, существует таблица с результатом, или нет
+    var tableRows = argTable.rows.length - 1; 
+    var tableCols = argTable.rows.item(0).cells.length;
+    function nullCopiedArgs() //обнуление массивов copiedArgs и optionArr
+    {
+        copiedArgs.splice(0,copiedArgs.length);
+        copiedArgs = Array(tableRows).fill();
+        for (let i = 0; i < tableRows; i++) // Заполняем массив copiedArgs пустыми массивами, чтобы в дальнейшем заполнить её в соответствии с таблицей ввода
+    {
+        copiedArgs[i] = new Array(tableCols);
+    }
+        optionArr.splice(0,optionArr.length);
+    }
+    function checkCells() // Проверяем данные в ячейках
+    {
+        let flag = false;
+        for (let i = 1; i < tableRows; i++) //Код для чтения таблицы был получен с сайта: https://www.encodedna.com/javascript/how-to-read-data-from-html-table-using-javascript.htm
+        {
+            if (i===11) break; // Т.к. параметры группировки находятся также в ячейках таблицы, последнюю строку не берём
+            let numAmount = 0;
+            var objCells = argTable.rows.item(i).cells;
+            for (let j = 0; j<tableCols; j++)
+            {
+                let buffer = objCells.item(j).innerText;
+                if (!isNaN(parseFloat(buffer,10)))
+                    ++numAmount;
+            }
+            if (numAmount===0)
+            {
+                flag=false;
+                break;
+            }
+            else
+                flag=true;
+        }
+        return flag;
+        
+    }
+    function copyData() // Копирование данных из таблицы ввода в массив
+    {
+        for (let i = 0; i < tableRows; i++)
+        {
+            if (i===11) break;
+            let objCells = argTable.rows.item(i).cells;
+            if (i===0) // Копирование заголовков столбцов
+            {
+                for (let j = 0; j<tableCols; j++)
+            {
+                copiedArgs[i][j] = objCells.item(j).innerText;
+            }
+                
+            }
+            else
+            for (let j = 0; j<tableCols; j++) // Копирование данных
+            {
+                let buffer = objCells.item(j).innerText;
+                let bufferInNum = parseFloat(buffer,10);
+                if (!isNaN(bufferInNum))
+                    {
+                        copiedArgs[i][j] = bufferInNum;
+                    }
+                    else // если в ячейке находится пустое значение, то в массив вводим значение "undefined"
+                    {
+                        copiedArgs[i][j] = undefined;
+                    }
+            }
+        }
+    }
+    function readOptions() // Считывание параметров группировки в соответствующий массив
+    {
+        for (let i = 0; i<5; i++)
+        {
+            let opt = document.getElementById("select" + i);
+            optionArr.push(opt.options[opt.selectedIndex].text);
+        }
+    }
+    function groupData() // Функция, которая выполняет группировку строк
+    {
+        for ( let i = 1; i < copiedArgs.length; i++ ) //Берём i-ю строку, начиная с первой (на нулевой строке находятся заголовки столбцов)
+        {
+            for (let k = i+1; k < copiedArgs.length; k++) // Далее перебираем все строки после i-й
+            {
+                let flag = false;
+                for (let j = 0; j < copiedArgs[i].length; j++)
+                {
+                    if (optionArr[j]=="Критерий")
+                    {
+                        if (copiedArgs[k][j]===copiedArgs[i][j]) //Если ячейка группируемой строки подходит по критерию, то данная строка будет в дальнейшем сгруппирована со строкой, с которорй сравнивается по критерию.
+                        {
+                            flag = true;
+                        }
+                        else
+                        {
+                            flag = false;
+                            break;
+                        }
+                    }
+                } // И так проверяем для каждого столбца-критерия
+                if (flag) //Если строка прошла проверку по критериям, начинаем группировку
+                {
+                    for (let j = 0; j<copiedArgs[i].length; j++) //Проходимся по каждому столбцу
+                    {
+                        console.log(copiedArgs[i].length);
+                        switch (optionArr[j]) { //Инструкция выбирается в соответствии с номером элемента в массиве optionArr (где каждый элемент соответствует своему столбцу таблицы (Для столбца А - 0-й элемент, для В - 1-й, и т.д.))
+                            case "---":
+                                for ( let d = 0; d<copiedArgs.length; d++) //Удаляем нужный столбец из каждой строки
+                                    {
+                                        copiedArgs[d].splice(j,1);
+                                    }
+                                optionArr.splice(j,1);
+                                --j;
+                                break;
+                            case "Сумма":
+                                if (!isNaN(copiedArgs[i][j]) && !isNaN(copiedArgs[k][j]))
+                                copiedArgs[i][j] += copiedArgs[k][j];
+                                break;
+                            case "Макс.":
+                            if (!isNaN(copiedArgs[i][j]) && !isNaN(copiedArgs[k][j]))
+                                copiedArgs[i][j] = Math.max(copiedArgs[i][j], copiedArgs[k][j]);
+                                break;
+                            case "Мин.":
+                            if (!isNaN(copiedArgs[i][j]) && !isNaN(copiedArgs[k][j]))
+                                copiedArgs[i][j] = Math.min(copiedArgs[i][j], copiedArgs[k][j]);
+                                break;
+                            case "Конкат":
+                                copiedArgs[i][j] = "" + copiedArgs[i][j] + copiedArgs[k][j];
+                                break;
+                            default:
+                                break;
+                        }
+                    }
+                    copiedArgs.splice(k,1) // После того, как строка была сгруппирована, удаляем её из таблицы
+                    --k;
+                }
+            }
+        }
+    }
+    function getTableArgs()
+    {
+        if (!checkCells())
+        {
+            alert("В каждой строке должно быть введено хотя бы одно числовое значение!");
+        }
+        else
+        {
+            copyData();
+            readOptions();
+            groupData();
+        }
+    }
+    function tableClear()
+    {
+        var tableClr = document.getElementById("tableResult");
+        tableClr.parentNode.removeChild(tableClr);
+        tableCreated = false;
+    }
+    function tableCreate()
+    {
+        const body = document.getElementById("resultField"),
+            tbl = document.createElement('table');
+            tbl.id = "tableResult";
+            tbl.style.width = '100px';
+            tbl.style.border = '1px solid black';
+
+            for (let i = 0; i < copiedArgs.length; i++)
+            {
+                const tr = tbl.insertRow();
+                for (let j = 0; j < copiedArgs[i].length; j++)
+                {
+                    const td = tr.insertCell();
+                    td.appendChild(document.createTextNode(copiedArgs[i][j]));
+                    td.style.border = '1px solid black';
+                    td.style.backgroundColor = "lightgray";
+                }
+            }
+            body.appendChild(tbl);
+            tableCreated = true;
+    }
+    function handler()
+    {
+        console.log("кнопка была нажата");
+        nullCopiedArgs();
+        getTableArgs();
+        document.getElementById("resultLabel").innerHTML = "Результат: <br> <br>";
+        if (tableCreated) //Очищаем старую таблицу вывода при повторном нажатии кнопки
+        {
+            tableClear();
+        }
+        tableCreate();
+        
+    }
+</script>
+</body></html>
